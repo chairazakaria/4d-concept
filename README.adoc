@@ -1,0 +1,166 @@
+= Project evaluation
+
+== Presentation
+
+Cette application est une application qui permet de rattacher des developpeurs à un projet.
+
+Un developpeur ne peut etre rattaché qu'a un seul projet.
+
+La liste des projets est fournie sous forme d'un fichier XML qui decrit l'id, le nom, l'id du projet parent et une liste de tags.
+Dans l'environnement de production, ce fichier pourra être mis à jour à tout moment.
+
+Le fichier XML des projets contient forcement un projet nommé `ROOT` avec l'id `1` et ne peut pas comporter de `tags`. A la suite peuvent être définis des projets avec un nom, un id unique, l'id d'un projet parent et une liste de tags.
+L'id d'un projet parent permet de definir une arborescence projet.
+Le schema du fichier projects.xml est disponible dans `src/main/resources/projects.xsd`.
+
+Par exemple, le fichier suivant
+
+[source,xml]
+----
+<projects>
+    <project>
+        <id>1</id>
+        <name>ROOT</name>
+    </project>
+    <project>
+        <id>2</id>
+        <name>CHILD_A</name>
+        <parent>1</parent>
+    </project>
+    <project>
+        <id>3</id>
+        <name>SUB_CHILD_A_A</name>
+        <parent>2</parent>
+    </project>
+    <project>
+        <id>4</id>
+        <name>SUB_CHILD_A_B</name>
+        <parent>2</parent>
+    </project>
+    <project>
+        <id>5</id>
+        <name>CHILD_B</name>
+        <parent>1</parent>
+    </project>
+</projects>
+----
+
+definit l'arborescence de projet suivante (name  [id]) :
+
+[source]
+----
+ROOT [1]
+|- CHILD_A [2]
+|  |- SUB_CHILD_A_A [3]
+|  |- SUB_CHILD_A_B [4]
+|
+|- CHILD_B [5]
+----
+
+== Architecture
+
+Le projet persiste ses données dans une base de données H2 en mémoire qui est detruite à de l'arrêt de l'application.
+
+Une API de type REST permet d'interagir avec l'application.
+
+== Developpement
+
+=== Pre requis
+
+- JDK 8
+- Git
+
+=== Commandes
+
+==== Lancement de l'application
+
+[source,shell]
+----
+./mvnw spring-boot:run
+----
+
+Les webservices sont alors disponibles en http://localhost:8080 , par exemple `POST http://localhost:8080/api/projects`
+
+==== Lancer les tests
+
+[source,shell]
+----
+./mvnw test
+----
+
+== Questions
+
+=== Correction d'anomalie
+
+==== Description
+
+**TICKET-132** Lorsqu'on recupere la liste des projects filtrés par tag et status (appel du webservice POST `/api/projects/tags/{tag}?status={status}`), les projets dont le parent n'est pas porteur du tag de filtre ne doivent pas être remontés même si ceux ci possedent le tag de filtre.
+
+Attention ceci ne concerne pas le noeud racine qui ne contient jamais de `tags`.
+
+Exemple, considérons l'arborescence suivante avec aucun developpeur declarés
+
+[source]
+----
+ROOT
+|- CHILD_A (tag: tag1)
+|  |- SUB_CHILD_A_A (tag: tag1)
+|  |- SUB_CHILD_A_B (tag: tag2)
+|
+|- CHILD_B (tag: tag2)
+----
+
+Actuellement les projets SUB_CHILD_A_B et CHILD_B sont remontés par la requete `POST /api/project/tag/tag2?status=ALL_INACTIVE`. Or le projet SUB_CHILD_A_B ne devrait pas être remonté car CHILD_A ne possède pas le tag `tag2`.
+
+==== Actions
+
+* Implementer la correction à cette anomalie en ameliorant le code si necessaire.
+* Fournir le resultat en zippant le projet avec son historique Git.
+
+=== Evolution
+
+==== Description
+
+**TICKET-133** Créer un webservice qui renvoie les projects sous forme d'arborescence depuis le ROOT avec dans chaque projet la liste des ids des developpeurs actifs (donc au status : ACTIVE).
+
+Les données necessaires sont pour chaque projet : l'id, le nom, une liste d'id de developpeurs et les projets enfants.
+
+A vous de proposer la signature de ce webservice.
+
+Voici un exemple de ce que peut être le retour de ce webservice :
+
+[source,json]
+----
+{
+    "id": "1",
+    "name": "ROOT",
+    "developers" : ["1", "3"],
+    "children": [
+        {
+            "id": "2",
+            "name": "PROJECT_A",
+            "developers" : ["2"],
+            "children": [
+                    {
+                        "id": "3",
+                        "name": "SUB_PROJECT_A_1",
+                        "developers" : ["4"]
+                    },
+                    {
+                        "id": "4",
+                        "name": "SUB_PROJECT_A_2",
+                        "developers" : ["7"]
+                    }
+            ]
+        }
+    ]
+}
+----
+
+==== Actions
+
+* Implementer cette evolution en ameliorant le code si necessaire.
+* Fournir le resultat en zippant le projet avec son historique Git.
+
+
+Bon courage !
