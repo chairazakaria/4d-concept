@@ -8,10 +8,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,39 +30,34 @@ class RestApiControllerIntegrationTest {
 
     @Test
     void completeScenario() throws Exception {
-        this.mockMvc.perform(post("/api/projects"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[*]", hasSize(8)));
-
-        this.mockMvc.perform(post("/api/projects/tag/internal?status=NO_INACTIVE"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[*]", hasSize(5)));
 
         createDeveloper("alice", "2");
         createDeveloper("bob", "2");
-        createDeveloper("carol", "3");
-        createDeveloper("dave", "3");
-        createDeveloper("eve", "3");
+        createDeveloper("carol", "1");
+        createDeveloper("dave", "1");
+        createDeveloper("eve", "1");
+        createDeveloper("franck");
 
-        MvcResult result = this.mockMvc.perform(post("/api/developers/list"))
+        MvcResult result = this.mockMvc.perform(post("/api/developers/list?all=true"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[*]", hasSize(5)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(jsonPath("$.[*]", hasSize(6)))
+                .andExpect(jsonPath("$.[?(@.name == 'bob' && @.projectName == 'Second Project')]").exists())
+                .andExpect(jsonPath("$.[?(@.name == 'carol' && @.projectName == 'First Project')]").exists())
+                .andExpect(jsonPath("$.[?(@.name == 'franck' && @.projectName == null)]").exists())
                 .andReturn();
-
-        List<Integer> developerIds = JsonPath.read(result.getResponse().getContentAsString(), "$.[*].id");
-
-        this.mockMvc.perform(post("/api/developers/"+developerIds.get(0)+"/desactivate"))
-                .andExpect(status().isOk());
-
-        this.mockMvc.perform(post("/api/developers/list"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[*]", hasSize(4)));
     }
 
     private void createDeveloper(String name, String projectId) throws Exception {
         this.mockMvc.perform(post("/api/developers/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\": \""+ name +"\", \"projectId\": \""+ projectId +"\"}"))
+                .andExpect(status().isCreated());
+    }
+    private void createDeveloper(String name) throws Exception {
+        this.mockMvc.perform(post("/api/developers/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \""+ name +"\"}"))
                 .andExpect(status().isCreated());
     }
 

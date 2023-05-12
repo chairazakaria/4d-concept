@@ -8,7 +8,7 @@
             </xs:element>
             <xs:element name="name" type="xs:string">
             </xs:element>
-            <xs:element name="parent" minOccurs="0" type="xs:string">
+            <xs:element name="status" type="xs:string">
             </xs:element>
             <xs:element type="tagsType" name="tags" minOccurs="0"/>
         </xs:sequence>

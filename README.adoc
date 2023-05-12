@@ -1,71 +1,50 @@
-= Project evaluation
+= Evaluation
 
 == Presentation
 
 Cette application est une application qui permet de rattacher des developpeurs à un projet.
 
-Un developpeur ne peut etre rattaché qu'a un seul projet.
+Un developpeur ne peut être rattaché qu'a un seul projet.
 
-La liste des projets est fournie sous forme d'un fichier XML qui decrit l'id, le nom, l'id du projet parent et une liste de tags.
+La liste des projets est fournie sous forme d'un fichier XML qui décrit l'id, le nom, un statut et une liste de tags.
 Dans l'environnement de production, ce fichier pourra être mis à jour à tout moment.
 
-Le fichier XML des projets contient forcement un projet nommé `ROOT` avec l'id `1` et ne peut pas comporter de `tags`. A la suite peuvent être définis des projets avec un nom, un id unique, l'id d'un projet parent et une liste de tags.
-L'id d'un projet parent permet de definir une arborescence projet.
 Le schema du fichier projects.xml est disponible dans `src/main/resources/projects.xsd`.
 
 Par exemple, le fichier suivant
 
 [source,xml]
 ----
-<projects>
+<?xml version="1.0" encoding="UTF-8"?>
+<projects
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="projects.xsd">
     <project>
         <id>1</id>
-        <name>ROOT</name>
+        <name>First Project</name>
+        <status>disabled</status>
     </project>
     <project>
         <id>2</id>
-        <name>CHILD_A</name>
-        <parent>1</parent>
-    </project>
-    <project>
-        <id>3</id>
-        <name>SUB_CHILD_A_A</name>
-        <parent>2</parent>
-    </project>
-    <project>
-        <id>4</id>
-        <name>SUB_CHILD_A_B</name>
-        <parent>2</parent>
-    </project>
-    <project>
-        <id>5</id>
-        <name>CHILD_B</name>
-        <parent>1</parent>
+        <name>Second Project</name>
+        <tags>
+            <tag>internal</tag>
+            <tag>2020</tag>
+        </tags>
+        <status>disabled</status>
     </project>
 </projects>
 ----
 
-definit l'arborescence de projet suivante (name  [id]) :
-
-[source]
-----
-ROOT [1]
-|- CHILD_A [2]
-|  |- SUB_CHILD_A_A [3]
-|  |- SUB_CHILD_A_B [4]
-|
-|- CHILD_B [5]
-----
-
 == Architecture
 
-Le projet persiste ses données dans une base de données H2 en mémoire qui est detruite à de l'arrêt de l'application.
+Le projet persiste ses données dans une base de données H2 en mémoire qui est détruite à de l'arrêt de l'application.
 
 Une API de type REST permet d'interagir avec l'application.
 
 == Developpement
 
-=== Pre requis
+=== Pré-requis
 
 - JDK 8
 - Git
@@ -79,7 +58,7 @@ Une API de type REST permet d'interagir avec l'application.
 ./mvnw spring-boot:run
 ----
 
-Les webservices sont alors disponibles en http://localhost:8080 , par exemple `POST http://localhost:8080/api/projects`
+Les webservices sont alors disponibles en http://localhost:8080 , par exemple `POST http://localhost:8080/api/developers/list`
 
 ==== Lancer les tests
 
@@ -90,77 +69,80 @@ Les webservices sont alors disponibles en http://localhost:8080 , par exemple `P
 
 == Questions
 
+Temps maximum estimé : ~2h
+
 === Correction d'anomalie
 
 ==== Description
 
-**TICKET-132** Lorsqu'on recupere la liste des projects filtrés par tag et status (appel du webservice POST `/api/projects/tags/{tag}?status={status}`), les projets dont le parent n'est pas porteur du tag de filtre ne doivent pas être remontés même si ceux ci possedent le tag de filtre.
+**TICKET-134**
 
-Attention ceci ne concerne pas le noeud racine qui ne contient jamais de `tags`.
+Lorsqu'on récupère la liste des developpeurs et qu'on ne demande pas tous les developpeurs (appel du webservice POST `/api/developers/list?all=false`), seuls les developeurs rattachés à un projet doivent être remontés.
 
-Exemple, considérons l'arborescence suivante avec aucun developpeur declarés
+Ce n'est pas le cas actuellement.
 
-[source]
+
+===== Exemple :
+
+Considérons le fichier projet suivant
+
+.projects.xml
+[source,xml]
 ----
-ROOT
-|- CHILD_A (tag: tag1)
-|  |- SUB_CHILD_A_A (tag: tag1)
-|  |- SUB_CHILD_A_B (tag: tag2)
-|
-|- CHILD_B (tag: tag2)
+<?xml version="1.0" encoding="UTF-8"?>
+<projects
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="projects.xsd">
+    <project>
+        <id>1</id>
+        <name>First Project</name>
+        <status>disabled</status>
+    </project>
+    <project>
+        <id>2</id>
+        <name>Second Project</name>
+        <tags>
+            <tag>internal</tag>
+            <tag>2020</tag>
+        </tags>
+        <status>disabled</status>
+    </project>
+</projects>
 ----
 
-Actuellement les projets SUB_CHILD_A_B et CHILD_B sont remontés par la requete `POST /api/project/tag/tag2?status=ALL_INACTIVE`. Or le projet SUB_CHILD_A_B ne devrait pas être remonté car CHILD_A ne possède pas le tag `tag2`.
+Puis les requetes suivantes :
 
-==== Actions
-
-* Implementer la correction à cette anomalie en ameliorant le code si necessaire.
-* Fournir le resultat en zippant le projet avec son historique Git.
-
-=== Evolution
-
-==== Description
-
-**TICKET-133** Créer un webservice qui renvoie les projects sous forme d'arborescence depuis le ROOT avec dans chaque projet la liste des ids des developpeurs actifs (donc au status : ACTIVE).
-
-Les données necessaires sont pour chaque projet : l'id, le nom, une liste d'id de developpeurs et les projets enfants.
-
-A vous de proposer la signature de ce webservice.
-
-Voici un exemple de ce que peut être le retour de ce webservice :
-
+- une requete POST http://localhost:8080/api/developers/create avec le body suivant
 [source,json]
 ----
-{
-    "id": "1",
-    "name": "ROOT",
-    "developers" : ["1", "3"],
-    "children": [
-        {
-            "id": "2",
-            "name": "PROJECT_A",
-            "developers" : ["2"],
-            "children": [
-                    {
-                        "id": "3",
-                        "name": "SUB_PROJECT_A_1",
-                        "developers" : ["4"]
-                    },
-                    {
-                        "id": "4",
-                        "name": "SUB_PROJECT_A_2",
-                        "developers" : ["7"]
-                    }
-            ]
-        }
-    ]
-}
+{"name": "alice", "projectId": "1"}
 ----
+- une requete POST http://localhost:8080/api/developers/create avec le body suivant
+[source,json]
+----
+{"name": "bob"}
+----
+
+La requete POST `http://localhost:8080/api/developers/list?all=false` doit retourner une reponse du type
+[source,json]
+----
+[
+    {"id":"1","name":"alice","projectId":null,"projectName":"First Project"}
+]
+----
+
+Les requêtes POST `http://localhost:8080/api/developers/list?all=true` ou `http://localhost:8080/api/developers/list` doivent retourner une réponse du type
+[source,json]
+----
+[
+    {"id":"1","name":"alice","projectId":null,"projectName":"First Project"},
+    {"id":"2","name":"bob","projectId":null,"projectName":null}
+]
+----
+
 
 ==== Actions
 
-* Implementer cette evolution en ameliorant le code si necessaire.
-* Fournir le resultat en zippant le projet avec son historique Git.
+* Implementer la correction à cette anomalie en améliorant le code si nécessaire.
+* Fournir le résultat en zippant le projet avec son historique Git.
 
-
-Bon courage !
