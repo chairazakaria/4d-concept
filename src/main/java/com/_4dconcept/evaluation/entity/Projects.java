@@ -1,4 +1,4 @@
-package com._4dconcept.evaluation.model;
+package com._4dconcept.evaluation.entity;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

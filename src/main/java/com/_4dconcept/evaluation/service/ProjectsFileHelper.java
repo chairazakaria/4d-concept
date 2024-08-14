@@ -1,7 +1,7 @@
-package com._4dconcept.evaluation.projects;
+package com._4dconcept.evaluation.service;
 
 import com._4dconcept.evaluation.BusinessException;
-import com._4dconcept.evaluation.model.Projects;
+import com._4dconcept.evaluation.entity.Projects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,11 +1,8 @@
-package com._4dconcept.evaluation.model;
+package com._4dconcept.evaluation.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Objects;
+import java.util.Optional;
 
 @Entity
 public class Developer {
@@ -14,8 +11,11 @@ public class Developer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
     private String name;
-    private String projectId;
+    @ManyToOne()
+    @JoinColumn(name = "project_id")
+    private Project project;
     private String status;
+
 
     public String getId() {
         return id;
@@ -33,12 +33,12 @@ public class Developer {
         this.name = name;
     }
 
-    public String getProjectId() {
-        return projectId;
+    public Project getProject() {
+        return project;
     }
 
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     public String getStatus() {

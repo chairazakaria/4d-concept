@@ -1,16 +1,33 @@
-package com._4dconcept.evaluation.model;
+package com._4dconcept.evaluation.entity;
 
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import java.util.List;
 
+@Entity
 public class Project {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
+
     private String name;
+
     private String parent;
-    private List<String> tags;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Tag> tags;
+
     private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getId() {
         return id;
@@ -38,11 +55,11 @@ public class Project {
 
     @XmlElementWrapper(name = "tags")
     @XmlElement(name = "tag")
-    public List<String> getTags() {
+    public List<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(List<Tag> tags) {
         this.tags = tags;
     }
 }
