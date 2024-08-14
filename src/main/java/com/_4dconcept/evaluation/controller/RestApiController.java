@@ -42,37 +42,36 @@ public class RestApiController {
      * @return
      */
     @PostMapping("developers/list")
-    public ResponseEntity<?> listDevelopers(HttpServletRequest request){
-        String allDevelopers = request.getParameter("all");
-        boolean allDevelopers2 = false;
-        if(! Utils.isStringNullOrEmptyOrBlank(allDevelopers)){
-            allDevelopers2 = Boolean.parseBoolean(allDevelopers);
-            if(!allDevelopers2){
-                LOG.warn("Should return only active developer");
-            }
-        }
+    public ResponseEntity<?> listDevelopers(@RequestParam(name = "all", required = false) String allDevelopers){
+        List<DeveloperView> attachedDevelopers = new ArrayList<>();
         try {
             List<Developer> developers = DeveloperRepository.findAll();
-
+            Projects projects = ProjectsFileHelper.loadProjects(projectFilePath);
             ArrayList<DeveloperView> ds = new ArrayList<>();
             for(int i = 0; i < developers.size(); i++) {
                 Developer developer = developers.get(i);
 
                 DeveloperView d = new DeveloperView(developer.getId(), developer.getName());
 
-                Projects projects = ProjectsFileHelper.loadProjects(projectFilePath);
                 if(developer.getProjectId() != null) {
                     for (int j = 0; j < projects.getProjects().size(); j++) {
                         if (developer.getProjectId().equals(projects.getProjects().get(j).getId())) {
                             d.setProjectName(projects.getProjects().get(j).getName());
                         }
                     }
+                    attachedDevelopers.add(d);
                 }
 
                 if (Constants.DEVELOPER_STATUS_ACTIVE.equals(developer.getStatus())) {
                     ds.add(d);
                 } else {
                     LOG.error("The developer is inactive");
+                }
+            }
+
+            if(! Utils.isStringNullOrEmptyOrBlank(allDevelopers)){
+                if(!Boolean.parseBoolean(allDevelopers)){
+                    return ResponseEntity.ok(attachedDevelopers);
                 }
             }
 
