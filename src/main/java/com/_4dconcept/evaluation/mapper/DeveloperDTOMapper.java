@@ -31,14 +31,13 @@ public class DeveloperDTOMapper implements Function<Developer, DeveloperDTO> {
     }
 
 
-    public Developer createDeveloper(DeveloperDTO developerDTO) throws BusinessException {
+    public Developer formatDeveloper(DeveloperDTO developerDTO) throws BusinessException {
         Project project = null;
 
         Developer developerToCreate = new Developer();
         developerToCreate.setName(developerDTO.getName());
         developerToCreate.setStatus(Constants.DEVELOPER_STATUS_ACTIVE);
 
-        this.projectService.createProjects();
         if (developerDTO.getProjectId() != null) {
             // Search project object by Id
             project =  this.projectService.getProjectById(developerDTO.getProjectId());

@@ -2,7 +2,6 @@ package com._4dconcept.evaluation.entity;
 
 import javax.persistence.*;
 import java.util.Objects;
-import java.util.Optional;
 
 @Entity
 public class Developer {
@@ -16,6 +15,14 @@ public class Developer {
     private Project project;
     private String status;
 
+    public Developer() {}
+
+    public Developer(String id, String name, Project project, String status) {
+        this.id = id;
+        this.name = name;
+        this.project = project;
+        this.status = status;
+    }
 
     public String getId() {
         return id;

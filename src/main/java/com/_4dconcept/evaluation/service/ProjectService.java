@@ -34,9 +34,9 @@ public class ProjectService {
         return ProjectsFileHelper.loadProjects(projectFilePath);
     }
 
-    public void createProjects() throws BusinessException {
+    public List<Project> createProjects() throws BusinessException {
         List<Project> listProject = loadProjectsFromXML(projectFilePath).getProjects();
-        projectRepository.saveAll(listProject);
+        return projectRepository.saveAll(listProject);
     }
 
     public Project getProjectById(String id) {

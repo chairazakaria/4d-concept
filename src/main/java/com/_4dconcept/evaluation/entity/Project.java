@@ -21,6 +21,22 @@ public class Project {
 
     private String status;
 
+    public Project(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Project(String id, String name, String parent, List<Tag> tags, String status) {
+        this.id = id;
+        this.name = name;
+        this.parent = parent;
+        this.tags = tags;
+        this.status = status;
+    }
+
+    public Project() {
+    }
+
     public String getStatus() {
         return status;
     }

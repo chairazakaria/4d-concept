@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -32,8 +32,8 @@ public class DeveloperController {
      * @return developer created
      */
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(value = "create", consumes = APPLICATION_JSON_VALUE)
-    public Developer create(@RequestBody DeveloperDTO developerDTO) throws BusinessException {
+    @PostMapping(consumes = APPLICATION_JSON_VALUE)
+    public @ResponseBody Developer create(@RequestBody DeveloperDTO developerDTO) throws BusinessException {
         return this.developerService.createDeveloper(developerDTO);
     }
 
@@ -41,11 +41,16 @@ public class DeveloperController {
      *
      * @return a list of developers
      */
-    @GetMapping(value = "list")
-    public @ResponseBody Stream<DeveloperDTO> listDevelopers(@RequestParam(name = "all", required = false) String allDevelopers){
+    @GetMapping()
+    public List<DeveloperDTO> listDevelopers(@RequestParam(name = "all", required = false) String allDevelopers){
             if(! Utils.isStringNullOrEmptyOrBlank(allDevelopers) && !Boolean.parseBoolean(allDevelopers)){
                 return this.developerService.getDevelopperAttached();
             }
             return this.developerService.getDeveloppers();
+    }
+
+    @GetMapping(value = "{id}")
+    public DeveloperDTO getDeveloper(@PathVariable String id){
+        return this.developerService.readDeveloper(id);
     }
 }

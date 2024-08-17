@@ -1,6 +1,7 @@
 package com._4dconcept.evaluation.service;
 
 import com._4dconcept.evaluation.BusinessException;
+import com._4dconcept.evaluation.entity.Project;
 import com._4dconcept.evaluation.entity.Projects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,15 @@ public class ProjectsFileHelper {
         JAXBContext context = JAXBContext.newInstance(Projects.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         return unmarshaller;
+    }
+
+     public static Project searchProjectFromXml(Projects projects, String idProject)  {
+         for (Project project  : projects.getProjects()) {
+             if (project.getId().equals(idProject)) {
+                 return project;
+             }
+         }
+         return null;
     }
 
 }

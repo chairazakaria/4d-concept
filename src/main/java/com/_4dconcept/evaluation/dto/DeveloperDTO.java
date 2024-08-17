@@ -1,6 +1,5 @@
 package com._4dconcept.evaluation.dto;
 
-
 public class DeveloperDTO {
     private String id;
     private String name;

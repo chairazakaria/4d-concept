@@ -2,13 +2,10 @@ package com._4dconcept.evaluation.controller;
 
 import com._4dconcept.evaluation.BusinessException;
 import com._4dconcept.evaluation.Constants;
-import com._4dconcept.evaluation.entity.Developer;
 import com._4dconcept.evaluation.entity.Project;
-import com._4dconcept.evaluation.service.DeveloperService;
 import com._4dconcept.evaluation.service.ProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,8 +51,8 @@ public class ProjectController {
      * @throws BusinessException
      */
     @GetMapping(value = "load")
-    public void LoadAndSaveProjects() throws BusinessException {
-        this.projectService.createProjects();
+    public List<Project> LoadAndSaveProjects() throws BusinessException {
+        return this.projectService.createProjects();
     }
 
     /**

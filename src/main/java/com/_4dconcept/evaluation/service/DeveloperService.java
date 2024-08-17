@@ -1,18 +1,15 @@
 package com._4dconcept.evaluation.service;
 
 import com._4dconcept.evaluation.BusinessException;
-import com._4dconcept.evaluation.Constants;
 import com._4dconcept.evaluation.dto.DeveloperDTO;
 import com._4dconcept.evaluation.entity.Developer;
-import com._4dconcept.evaluation.entity.Project;
-import com._4dconcept.evaluation.entity.Projects;
 import com._4dconcept.evaluation.mapper.DeveloperDTOMapper;
 import com._4dconcept.evaluation.repository.DeveloperRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 @Service
 public class DeveloperService {
@@ -27,15 +24,21 @@ public class DeveloperService {
     }
 
     public Developer createDeveloper(DeveloperDTO developerDTO) throws BusinessException {
-        Developer developer =  developerDTOMapper.createDeveloper(developerDTO);
+        Developer developer = developerDTOMapper.formatDeveloper(developerDTO);
         return developerRepository.save(developer);
     }
 
-    public Stream<DeveloperDTO> getDeveloppers() {
-        return this.developerRepository.findAll().stream().map(developerDTOMapper);
+    public List<DeveloperDTO> getDeveloppers() {
+        return this.developerRepository.findAll().stream().map(developerDTOMapper).collect(Collectors.toList());
     }
 
-    public Stream<DeveloperDTO> getDevelopperAttached() {
-        return this.developerRepository.findByProjectNotNull().stream().map(developerDTOMapper);
+    public List<DeveloperDTO> getDevelopperAttached() {
+        return (List<DeveloperDTO>) this.developerRepository.findByProjectNotNull().stream().map(developerDTOMapper).collect(Collectors.toList());
+    }
+
+    public DeveloperDTO readDeveloper(String id) {
+        Optional<Developer> optionalDeveloper = developerRepository.findById(id);
+        Developer developer = optionalDeveloper.orElse(null);
+        return developer != null ? developerDTOMapper.apply(developer) : null;
     }
 }
