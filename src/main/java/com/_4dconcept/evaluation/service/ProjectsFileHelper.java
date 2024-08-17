@@ -55,13 +55,13 @@ public class ProjectsFileHelper {
         return unmarshaller;
     }
 
-     public static Project searchProjectFromXml(Projects projects, String idProject)  {
-         for (Project project  : projects.getProjects()) {
-             if (project.getId().equals(idProject)) {
-                 return project;
-             }
-         }
-         return null;
+    public static Project searchProjectFromXml(Projects projects, String idProject) {
+        for (Project project : projects.getProjects()) {
+            if (project.getId().equals(idProject)) {
+                return project;
+            }
+        }
+        return null;
     }
 
 }

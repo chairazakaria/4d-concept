@@ -47,7 +47,7 @@ public class DeveloperControllerTest {
     private DeveloperDTOMapper developerDTOMapper;
 
     @BeforeEach
-    void init() throws Exception {
+    void setUp() throws Exception {
         // Load Project from XML
         projects = ProjectsFileHelper.loadProjects(projectFilePath);
     }
@@ -103,10 +103,10 @@ public class DeveloperControllerTest {
         // Create Developers DTO
         DeveloperDTO developerDTO1 = developerDTOMapper.apply(new Developer("1", "Zac", project1, Constants.DEVELOPER_STATUS_ACTIVE));
         DeveloperDTO developerDTO2 = developerDTOMapper.apply(new Developer("2", "carol", project1, Constants.DEVELOPER_STATUS_ACTIVE));
-        DeveloperDTO developerDTO3 = developerDTOMapper.apply(new Developer("2", "alice", project2, Constants.DEVELOPER_STATUS_ACTIVE));
-        DeveloperDTO developerDTO4 = developerDTOMapper.apply(new Developer("2", "bob", project2, Constants.DEVELOPER_STATUS_ACTIVE));
-        DeveloperDTO developerDTO5 = developerDTOMapper.apply(new Developer("2", "eve", project1, Constants.DEVELOPER_STATUS_ACTIVE));
-        DeveloperDTO developerDTO6 = developerDTOMapper.apply(new Developer("3", "franck", null, Constants.DEVELOPER_STATUS_ACTIVE));
+        DeveloperDTO developerDTO3 = developerDTOMapper.apply(new Developer("3", "alice", project2, Constants.DEVELOPER_STATUS_ACTIVE));
+        DeveloperDTO developerDTO4 = developerDTOMapper.apply(new Developer("4", "bob", project2, Constants.DEVELOPER_STATUS_ACTIVE));
+        DeveloperDTO developerDTO5 = developerDTOMapper.apply(new Developer("5", "eve", project1, Constants.DEVELOPER_STATUS_ACTIVE));
+        DeveloperDTO developerDTO6 = developerDTOMapper.apply(new Developer("6", "franck", null, Constants.DEVELOPER_STATUS_ACTIVE));
 
         return List.of(developerDTO1, developerDTO2, developerDTO3, developerDTO4, developerDTO5, developerDTO6);
     }

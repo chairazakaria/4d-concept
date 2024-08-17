@@ -36,7 +36,7 @@ class ProjectControllerTest {
     private ProjectService projectService;
 
     @BeforeEach
-    void init() throws Exception {
+    void setUp() throws Exception {
         // Load Project from XML
         projects = ProjectsFileHelper.loadProjects(projectFilePath);
     }

@@ -41,4 +41,8 @@ public class DeveloperService {
         Developer developer = optionalDeveloper.orElse(null);
         return developer != null ? developerDTOMapper.apply(developer) : null;
     }
+
+    public DeveloperDTO getDeveloperByName(String name) {
+        return developerRepository.findByName(name);
+    }
 }
